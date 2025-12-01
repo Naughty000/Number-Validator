@@ -1,4 +1,3 @@
-
 :root {
     --primary: #003049;
     --secondary: #457b9d;
@@ -9,7 +8,6 @@
     --text: #003049;
     --light: #f1faee;
 }
-
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -24,7 +22,6 @@ body {
 .text-custom {
     color: var(--text);
 }
-
 
 .main-title {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -74,7 +71,6 @@ body {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
 }
-
 
 .input-section {
     background: var(--secondary);
@@ -191,7 +187,6 @@ body {
     font-weight: 500;
 }
 
-
 .result-item {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
@@ -226,7 +221,6 @@ body {
     font-weight: 500;
     margin-left: 10px;
 }
-
 
 .button-group {
     display: flex;
@@ -314,7 +308,7 @@ body {
     font-weight: 500;
 }
 
-
+/* Operator Colors */
 .operator-jazz { background: #FF6B35; color: white; }
 .operator-telenor { background: #00A0E3; color: white; }
 .operator-ufone { background: #FFD100; color: black; }
@@ -322,7 +316,6 @@ body {
 .operator-warid { background: #ED1C24; color: white; }
 .operator-scom { background: #8DC63F; color: white; }
 .operator-unknown { background: #666; color: white; }
-
 
 @media (max-width: 768px) {
     .main-container {
