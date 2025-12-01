@@ -1,10 +1,7 @@
-
-
-
 const operators = {
     jazz: {
         name: "Jazz",
-        ranges: ["0300", "0301", "0302", "0303", "0304", "0305", "0306", "0307", "0308", "0309", "0320", "0321", "0322", "0323", "0324", "0325","0327"],
+        ranges: ["0300", "0301", "0302", "0303", "0304", "0305", "0306", "0307", "0308", "0309"],
         color: "operator-jazz"
     },
     telenor: {
@@ -24,7 +21,7 @@ const operators = {
     },
     warid: {
         name: "Warid (now Jazz)",
-        ranges: ["0320", "0321", "0322", "0323", "0324"],
+        ranges: ["0320", "0321", "0322", "0323", "0324", "0325"],
         color: "operator-warid"
     },
     scom: {
@@ -54,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
 });
 
-// Set up event listeners
+
 function setupEventListeners() {
     checkBtn.addEventListener('click', validateNumber);
     clearBtn.addEventListener('click', clearInput);
@@ -96,6 +93,7 @@ function updateStatus(type, message) {
     }
 }
 
+
 function validateNumber() {
     const input = numberInput.value.trim();
     
@@ -104,7 +102,7 @@ function validateNumber() {
         return;
     }
     
-  
+    
     const cleanedNumber = cleanNumber(input);
     
     if (!isValidPakistaniNumber(cleanedNumber)) {
@@ -133,7 +131,7 @@ function cleanNumber(number) {
 
 
 function isValidPakistaniNumber(number) {
-   
+    // Define valid patterns for Pakistani mobile numbers
     const patterns = [
         /^0?3[0-6][0-9]{8}$/,           // 03XXXXXXXXX or 3XXXXXXXXX
         /^\+920?3[0-6][0-9]{8}$/,       // +923XXXXXXXXX or +9203XXXXXXXXX
@@ -148,7 +146,7 @@ function isValidPakistaniNumber(number) {
 function extractPrefix(number) {
     let cleanNum = number;
     
-    
+  
     if (cleanNum.startsWith('+92')) {
         cleanNum = cleanNum.substring(3);
     } else if (cleanNum.startsWith('92')) {
@@ -157,7 +155,7 @@ function extractPrefix(number) {
         cleanNum = cleanNum.substring(4);
     }
     
-    
+  
     if (cleanNum.startsWith('0')) {
         cleanNum = cleanNum.substring(1);
     }
@@ -179,10 +177,11 @@ function identifyOperator(prefix) {
     };
 }
 
+
 function formatNumber(number) {
     let cleanNum = number;
     
-    
+  
     if (cleanNum.startsWith('+92')) {
         cleanNum = cleanNum.substring(3);
     } else if (cleanNum.startsWith('92')) {
@@ -196,7 +195,7 @@ function formatNumber(number) {
         cleanNum = cleanNum.substring(1);
     }
     
-  
+   
     return `+92 ${cleanNum.substring(0, 3)} ${cleanNum.substring(3)}`;
 }
 
@@ -280,16 +279,23 @@ function clearInput() {
 
 
 function pasteFromClipboard() {
-    navigator.clipboard.readText()
-        .then(text => {
-            numberInput.value = text;
-            numberInput.focus();
-            updateStatus('typing', 'Pasted from clipboard');
-        })
-        .catch(err => {
-            console.error('Failed to read clipboard contents: ', err);
-            showError('Cannot access clipboard. Please paste manually.');
-        });
+    if (navigator.clipboard && navigator.clipboard.readText) {
+        navigator.clipboard.readText()
+            .then(text => {
+                numberInput.value = text;
+                numberInput.focus();
+                updateStatus('typing', 'Pasted from clipboard');
+            })
+            .catch(err => {
+                console.error('Failed to read clipboard contents: ', err);
+                showError('Cannot access clipboard. Please paste manually.');
+            });
+    } else {
+        // Fallback for browsers that don't support clipboard API
+        numberInput.focus();
+        document.execCommand('paste');
+        updateStatus('typing', 'Pasted from clipboard');
+    }
 }
 
 
@@ -303,7 +309,7 @@ function addToHistory(number, operator) {
     
     validationHistory.unshift(historyItem);
     
-   
+  
     if (validationHistory.length > 10) {
         validationHistory = validationHistory.slice(0, 10);
     }
@@ -311,9 +317,10 @@ function addToHistory(number, operator) {
     
     localStorage.setItem('validationHistory', JSON.stringify(validationHistory));
     
-  
+    
     loadValidationHistory();
 }
+
 
 function loadValidationHistory() {
     if (validationHistory.length === 0) {
@@ -328,5 +335,5 @@ function loadValidationHistory() {
         </div>
     `).join('');
 }
-});
+
 
