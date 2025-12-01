@@ -21,19 +21,12 @@ const operators = {
     },
     warid: {
         name: "Warid (now Jazz)",
-        ranges: ["0320", "0321", "0322", "0323", "0324", "0325"],
+        ranges: ["0320", "0321", "0322", "0323", "0324", "0325", "0327"],
         color: "operator-warid"
-    },
-    scom: {
-        name: "SCOM",
-        ranges: ["0336"],
-        color: "operator-scom"
     }
 };
 
-
 let validationHistory = JSON.parse(localStorage.getItem('validationHistory')) || [];
-
 
 const numberInput = document.getElementById('number');
 const checkBtn = document.getElementById('check_btn');
@@ -45,12 +38,11 @@ const statusText = document.getElementById('statusText');
 const pasteBtn = document.getElementById('pasteBtn');
 const historyList = document.getElementById('historyList');
 
-
 document.addEventListener('DOMContentLoaded', function() {
     loadValidationHistory();
     setupEventListeners();
+    console.log("Application initialized");
 });
-
 
 function setupEventListeners() {
     checkBtn.addEventListener('click', validateNumber);
@@ -62,7 +54,6 @@ function setupEventListeners() {
         }
     });
     
-    
     numberInput.addEventListener('input', function() {
         const number = this.value.trim();
         if (number.length > 0) {
@@ -73,103 +64,107 @@ function setupEventListeners() {
     });
 }
 
-
 function updateStatus(type, message) {
     statusText.textContent = message;
     
     switch(type) {
         case 'ready':
-            statusLight.style.backgroundColor = '#e9c46a'; // yellow
+            statusLight.style.backgroundColor = '#e9c46a';
             break;
         case 'typing':
-            statusLight.style.backgroundColor = '#f4a261'; // orange
+            statusLight.style.backgroundColor = '#f4a261';
             break;
         case 'valid':
-            statusLight.style.backgroundColor = '#2a9d8f'; // green
+            statusLight.style.backgroundColor = '#2a9d8f';
             break;
         case 'invalid':
-            statusLight.style.backgroundColor = '#e63946'; // red
+            statusLight.style.backgroundColor = '#e63946';
             break;
     }
 }
 
-
 function validateNumber() {
     const input = numberInput.value.trim();
+    console.log("Validating:", input);
     
     if (!input) {
         showError('Please enter a phone number');
         return;
     }
     
-    
     const cleanedNumber = cleanNumber(input);
+    console.log("Cleaned number:", cleanedNumber);
     
     if (!isValidPakistaniNumber(cleanedNumber)) {
         showError('Invalid Pakistani number format');
         return;
     }
     
-    
     const prefix = extractPrefix(cleanedNumber);
+    console.log("Extracted prefix:", prefix);
+    
     const operatorInfo = identifyOperator(prefix);
+    console.log("Identified operator:", operatorInfo);
+    
     const formattedNumber = formatNumber(cleanedNumber);
     
-    
     displayResults(formattedNumber, operatorInfo, prefix);
-    
-   
     addToHistory(formattedNumber, operatorInfo);
-    
     updateStatus('valid', 'Valid Pakistani Number');
 }
-
 
 function cleanNumber(number) {
     return number.replace(/\s+/g, '').replace(/[-()]/g, '');
 }
 
-
 function isValidPakistaniNumber(number) {
-    // Define valid patterns for Pakistani mobile numbers
     const patterns = [
-        /^0?3[0-6][0-9]{8}$/,           // 03XXXXXXXXX or 3XXXXXXXXX
-        /^\+920?3[0-6][0-9]{8}$/,       // +923XXXXXXXXX or +9203XXXXXXXXX
-        /^923[0-6][0-9]{8}$/,           // 923XXXXXXXXX
-        /^00923[0-6][0-9]{8}$/          // 00923XXXXXXXXX
+        /^0?3[0-6][0-9]{8}$/,
+        /^\+920?3[0-6][0-9]{8}$/,
+        /^923[0-6][0-9]{8}$/,
+        /^00923[0-6][0-9]{8}$/
     ];
     
-    return patterns.some(pattern => pattern.test(number));
+    const isValid = patterns.some(pattern => pattern.test(number));
+    console.log("Validation result:", isValid);
+    return isValid;
 }
-
 
 function extractPrefix(number) {
     let cleanNum = number;
+    console.log("Extracting prefix from:", cleanNum);
     
-  
     if (cleanNum.startsWith('+92')) {
         cleanNum = cleanNum.substring(3);
+        console.log("Removed +92, remaining:", cleanNum);
     } else if (cleanNum.startsWith('92')) {
         cleanNum = cleanNum.substring(2);
+        console.log("Removed 92, remaining:", cleanNum);
     } else if (cleanNum.startsWith('0092')) {
         cleanNum = cleanNum.substring(4);
+        console.log("Removed 0092, remaining:", cleanNum);
     }
     
-  
-    if (cleanNum.startsWith('0')) {
-        cleanNum = cleanNum.substring(1);
-    }
     
-    return cleanNum.substring(0, 4);
+    
+    const prefix = cleanNum.substring(0, 4);
+    console.log("Final prefix:", prefix);
+    return prefix;
 }
 
-
 function identifyOperator(prefix) {
-    for (const [key, operator] of Object.entries(operators)) {
-        if (operator.ranges.includes(prefix)) {
-            return operator;
+    console.log("Identifying operator for prefix:", prefix);
+    
+    for (const [operatorKey, operatorData] of Object.entries(operators)) {
+        console.log(`Checking ${operatorData.name}:`, operatorData.ranges);
+        
+        if (operatorData.ranges.includes(prefix)) {
+            console.log("✓ Found operator:", operatorData.name);
+            return operatorData;
         }
     }
+    
+    console.log("✗ No operator found for prefix:", prefix);
     
     return {
         name: "Unknown Operator",
@@ -177,11 +172,9 @@ function identifyOperator(prefix) {
     };
 }
 
-
 function formatNumber(number) {
     let cleanNum = number;
     
-  
     if (cleanNum.startsWith('+92')) {
         cleanNum = cleanNum.substring(3);
     } else if (cleanNum.startsWith('92')) {
@@ -190,17 +183,12 @@ function formatNumber(number) {
         cleanNum = cleanNum.substring(4);
     }
     
-    
-    if (cleanNum.startsWith('0')) {
-        cleanNum = cleanNum.substring(1);
-    }
-    
-   
     return `+92 ${cleanNum.substring(0, 3)} ${cleanNum.substring(3)}`;
 }
 
-
 function displayResults(number, operator, prefix) {
+    console.log("Displaying results:", { number, operator, prefix });
+    
     initialSpace.style.display = 'none';
     
     const resultsHTML = `
@@ -237,7 +225,6 @@ function displayResults(number, operator, prefix) {
     resultsContainer.innerHTML = resultsHTML;
 }
 
-
 function showError(message) {
     initialSpace.style.display = 'none';
     
@@ -251,24 +238,11 @@ function showError(message) {
                 ${message}
             </div>
         </div>
-        <div class="result-item">
-            <div class="result-title">
-                <i class="fas fa-info-circle"></i>
-                Accepted Formats:
-            </div>
-            <div style="color: #f1faee; font-size: 0.9rem;">
-                <div>• 03XX XXXXXXX</div>
-                <div>• +92 3XX XXXXXXX</div>
-                <div>• 923XXXXXXXXX</div>
-                <div>• 00923XXXXXXXXX</div>
-            </div>
-        </div>
     `;
     
     resultsContainer.innerHTML = errorHTML;
     updateStatus('invalid', 'Invalid Number');
 }
-
 
 function clearInput() {
     numberInput.value = '';
@@ -276,7 +250,6 @@ function clearInput() {
     initialSpace.style.display = 'flex';
     updateStatus('ready', 'Ready to validate');
 }
-
 
 function pasteFromClipboard() {
     if (navigator.clipboard && navigator.clipboard.readText) {
@@ -291,13 +264,9 @@ function pasteFromClipboard() {
                 showError('Cannot access clipboard. Please paste manually.');
             });
     } else {
-        // Fallback for browsers that don't support clipboard API
-        numberInput.focus();
-        document.execCommand('paste');
-        updateStatus('typing', 'Pasted from clipboard');
+        showError('Clipboard access not supported. Please paste manually.');
     }
 }
-
 
 function addToHistory(number, operator) {
     const historyItem = {
@@ -309,18 +278,13 @@ function addToHistory(number, operator) {
     
     validationHistory.unshift(historyItem);
     
-  
     if (validationHistory.length > 10) {
         validationHistory = validationHistory.slice(0, 10);
     }
     
-    
     localStorage.setItem('validationHistory', JSON.stringify(validationHistory));
-    
-    
     loadValidationHistory();
 }
-
 
 function loadValidationHistory() {
     if (validationHistory.length === 0) {
@@ -335,5 +299,6 @@ function loadValidationHistory() {
         </div>
     `).join('');
 }
+
 
 
